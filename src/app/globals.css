@@ -171,6 +171,29 @@
   white-space: nowrap;
 }
 
+/*
+ * Touch targets (UI spec §6: ≥ 44px). Base components are mobile-first: controls are 44px tall
+ * below `sm` (640px) and use their compact sizes from `sm` up. For controls that must stay small
+ * visually (e.g. icon buttons inside an input), `touch-target` adds an invisible 44×44 hit area.
+ */
+@utility touch-target {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
+  @media (width >= 40rem) {
+    &::after {
+      content: none;
+    }
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

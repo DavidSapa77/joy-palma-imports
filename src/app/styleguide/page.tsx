@@ -1,5 +1,14 @@
 import type { Metadata } from "next";
-import { Loader2, Plus, ShoppingCart, TrendingDown, TrendingUp, Trophy } from "lucide-react";
+import {
+  Loader2,
+  Plus,
+  Search,
+  ShoppingCart,
+  TrendingDown,
+  TrendingUp,
+  Trophy,
+  X,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,8 +20,24 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -158,6 +183,57 @@ export default function StyleguidePage() {
             Disabled
           </Button>
         </div>
+      </Section>
+
+      <Section title="Form controls (44px tall below 640px)">
+        <div className="grid max-w-2xl gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="sg-search">Product search</Label>
+            <InputGroup>
+              <InputGroupAddon>
+                <Search />
+              </InputGroupAddon>
+              <InputGroupInput id="sg-search" placeholder="Name or SKU" />
+              <InputGroupAddon align="inline-end">
+                <InputGroupButton size="icon-xs" aria-label="Clear search">
+                  <X />
+                </InputGroupButton>
+              </InputGroupAddon>
+            </InputGroup>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="sg-payment">Payment method</Label>
+            <Select defaultValue="CASH">
+              <SelectTrigger id="sg-payment" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="CASH">Cash</SelectItem>
+                <SelectItem value="MOBILE_MONEY">Mobile Money</SelectItem>
+                <SelectItem value="BANK_TRANSFER">Bank Transfer</SelectItem>
+                <SelectItem value="CARD">Card</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex min-h-11 items-center gap-3 sm:min-h-0">
+            <Checkbox id="sg-cost" defaultChecked />
+            <Label htmlFor="sg-cost">Update product cost price</Label>
+          </div>
+          <div className="flex min-h-11 items-center gap-3 sm:min-h-0">
+            <Switch id="sg-active" defaultChecked />
+            <Label htmlFor="sg-active">Active</Label>
+          </div>
+        </div>
+        <Tabs defaultValue="sales" className="max-w-md">
+          <TabsList>
+            <TabsTrigger value="sales">Sales</TabsTrigger>
+            <TabsTrigger value="movements">Movements</TabsTrigger>
+            <TabsTrigger value="prices">Prices</TabsTrigger>
+          </TabsList>
+          <TabsContent value="sales" className="text-sm text-muted-foreground">
+            Units sold per month…
+          </TabsContent>
+        </Tabs>
       </Section>
 
       <Section title="Badges">
