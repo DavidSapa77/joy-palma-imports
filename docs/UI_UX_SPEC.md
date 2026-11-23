@@ -182,7 +182,7 @@ A6/80mm-thermal-friendly layout: logo, business name, address, phone; receipt #,
 - Actions (Owner/Manager): Receive stock, Adjust stock, Archive/Restore. Owner: Change price (dialog shows old → new, note).
 
 ### 4.9 Product form (create/edit)
-Fields: Name*, SKU (auto, editable), Category (select + "new"), Unit*, Selling price* (Owner only; Manager sees read-only and can request — v1: Manager creating a product may set an initial price, but cannot change it afterwards), Cost price, Low-stock threshold, Description, Image upload.
+Fields: Name*, SKU (auto, editable), Category (select + "new"), Unit*, Selling price* (Owner and Manager can set it when **creating** a product; on **edit** it is editable by the Owner only and read-only for the Manager — later changes go through the Owner's Change price dialog), Cost price, Low-stock threshold, Description, Image upload.
 Initial quantity is **not** on this form — after creating, user is prompted "Receive initial stock now?" → Stock-In.
 
 ### 4.10 Stock-In (receive shipment)
@@ -204,16 +204,18 @@ Dialog from product or Stock page: product, current stock (read-only), change (+
 
 | Report | Visual | Table columns |
 |---|---|---|
-| Best Sellers | Horizontal bar chart top 10; toggle *By quantity / By revenue / By profit* | Rank, Product, Units, Revenue, Profit, Margin %, Share of revenue % |
+| Best Sellers | Horizontal bar chart top 10; toggle *By quantity / By revenue / By profit* | Rank, Product, Units, Revenue, Profit (before discounts), Margin %, Share of revenue % |
 | Slow Movers | — | Product, In stock, Units sold (period), Last sold, Days since, Stock value at cost |
-| Monthly Summary | Grouped bar (revenue vs cost) + profit line | Month, Sales, Units, Revenue, Discounts, COGS, Gross profit, Margin |
+| Monthly Summary | Grouped bar (revenue vs cost) + profit line | Month, Sales, Units, Revenue, Discounts, COGS, Gross profit (after discounts), Margin |
 | Seasonality | Heatmap: products (rows) × months (cols), colour = units sold | Same, numeric |
-| Categories | Donut / bar | Category, Units, Revenue, Profit, % |
+| Categories | Donut / bar | Category, Units, Revenue, Profit (before discounts), % |
 | Most Requested | Bar chart | Item, Requests, Qty wanted, In catalogue?, Status |
 | Restock Suggestions | Score bar per row | Product, Score, Units sold (60d), Stock left, Days left, Open requests, Suggested action ("Import more", "Hold", "Stop importing") |
 | Staff Activity | Bar | Staff, Sales, Revenue, Voids |
 
 Each chart has an accessible table alternative and tooltips with exact values.
+
+**Profit labelling:** discounts are applied to the whole sale, not to lines. Any per-product or per-category profit (Best Sellers, Categories, product detail margin) is computed from line totals and must be labelled **"before discounts"**. Sale-level figures (Monthly Summary, dashboard Gross profit KPI) use the sale total and must be labelled **"after discounts"**. Show the label in the column header and in chart tooltips.
 
 ### 4.14 Admin — Users
 Table: Name, Email, Role badge, Status, Last login. Actions: Add user (name, email, role, temporary password generated & shown once), Edit role, Reset password, Deactivate/Reactivate. Owner cannot deactivate themselves or remove the last Owner.

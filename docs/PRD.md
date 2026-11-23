@@ -42,7 +42,7 @@ The system will be used by roughly 4–10 people, each with their own login. Acc
 | Role | Who | Summary |
 |---|---|---|
 | **Owner (Admin)** | The business owner | Full access: users, prices, products, stock, sales, reports, settings, audit log |
-| **Manager** | Trusted shop lead | Manage products and stock, record and void sales, view all reports. Cannot manage users, cannot change settings |
+| **Manager** | Trusted shop lead | Manage products and stock, record and void sales, view all reports. Can set a product's initial selling price but not change it later. Cannot manage users, cannot change settings |
 | **Sales Staff** | Shop attendants | Record sales and customer requests, view product list and stock levels. Cannot change prices, edit products, adjust stock, void sales, or see profit/cost figures |
 | **Viewer** (optional) | Accountant / partner | Read-only access to reports and records |
 
@@ -53,9 +53,11 @@ The system will be used by roughly 4–10 people, each with their own login. Acc
 | Log in / change own password | ✅ | ✅ | ✅ | ✅ |
 | View products & stock levels | ✅ | ✅ | ✅ | ✅ |
 | Create / edit product details (name, category, SKU) | ✅ | ✅ | ❌ | ❌ |
-| **Set or change selling price** | ✅ | ❌ | ❌ | ❌ |
+| **Set initial selling price** (when creating a product) | ✅ | ✅ | ❌ | ❌ |
+| **Change selling price** of an existing product | ✅ | ❌ | ❌ | ❌ |
 | Set or view cost price | ✅ | ✅ (view) | ❌ | ✅ (view) |
 | Archive a product | ✅ | ✅ | ❌ | ❌ |
+| View stock history (stock-ins, adjustments, movement ledger) | ✅ | ✅ | ❌ | ✅ (read-only) |
 | Record stock-in (new shipment) | ✅ | ✅ | ❌ | ❌ |
 | Manual stock adjustment (damage, loss, recount) | ✅ | ✅ | ❌ | ❌ |
 | **Record a sale** | ✅ | ✅ | ✅ | ❌ |
@@ -73,6 +75,10 @@ The system will be used by roughly 4–10 people, each with their own login. Acc
 | View audit log | ✅ | ✅ | ❌ | ❌ |
 
 **Principle:** sales staff can *record what happened* but cannot *change the rules* (prices, stock, history).
+
+**Selling price:** a Manager may set the selling price only once, when creating a product (permission `product.price.setInitial`). Changing the price afterwards is Owner-only (`product.price.change`) and is recorded in price history.
+
+**Stock history:** Viewers can open the Stock pages (stock-in history, adjustments, movement ledger) read-only (`stock.view`); they cannot receive or adjust stock. Sales Staff see stock levels on products only.
 
 ## 5. Scope
 
@@ -123,7 +129,7 @@ The system will be used by roughly 4–10 people, each with their own login. Acc
 - **Best sellers:** ranked by quantity sold and by revenue for a chosen period (this week, this month, last month, this quarter, this year, custom range).
 - **Slow movers / dead stock:** products with high stock and few or no sales in the period; days since last sale.
 - **Sell-through rate:** units sold ÷ units received in the period.
-- **Monthly summary:** revenue, cost of goods sold, gross profit, margin %, per month and per product.
+- **Monthly summary:** revenue, cost of goods sold, gross profit, margin %, per month and per product. Per-month totals are **after discounts**; per-product profit is **before discounts** (discounts apply to the whole sale) — the UI labels each figure accordingly.
 - **Category performance.**
 - **Seasonality:** month-by-month sales per product over the year, so seasonal patterns are visible.
 - **Most requested:** customer requests ranked by count.
