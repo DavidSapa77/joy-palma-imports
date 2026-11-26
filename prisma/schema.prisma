@@ -1,0 +1,309 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  OWNER
+  MANAGER
+  SALES
+  VIEWER
+}
+
+enum UnitOfMeasure {
+  PIECE
+  PACK
+  CARTON
+  DOZEN
+  KG
+  LITRE
+  METRE
+  SET
+  PAIR
+}
+
+enum PaymentMethod {
+  CASH
+  MOBILE_MONEY
+  BANK_TRANSFER
+  CARD
+  OTHER
+}
+
+enum SaleStatus {
+  COMPLETED
+  VOIDED
+}
+
+enum MovementType {
+  STOCK_IN
+  SALE
+  SALE_VOID
+  ADJUSTMENT
+}
+
+enum AdjustmentReason {
+  DAMAGED
+  LOST
+  THEFT
+  EXPIRED
+  RECOUNT
+  RETURNED_BY_CUSTOMER
+  OTHER
+}
+
+enum RequestStatus {
+  OPEN
+  FULFILLED
+  DISMISSED
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  ARCHIVE
+  RESTORE
+  VOID
+  LOGIN
+  LOGIN_FAILED
+  PASSWORD_RESET
+  DEACTIVATE
+}
+
+model User {
+  id                 String    @id @default(cuid())
+  name               String
+  email              String    @unique
+  passwordHash       String
+  role               Role      @default(SALES)
+  isActive           Boolean   @default(true)
+  mustChangePassword Boolean   @default(true)
+  lastLoginAt        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  productsCreated Product[]         @relation("ProductCreatedBy")
+  sales           Sale[]            @relation("SoldBy")
+  voidedSales     Sale[]            @relation("VoidedBy")
+  stockIns        StockIn[]
+  adjustments     StockAdjustment[]
+  movements       StockMovement[]
+  requests        CustomerRequest[]
+  priceChanges    PriceHistory[]
+  auditLogs       AuditLog[]
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  description String?
+  isActive    Boolean   @default(true)
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id                String        @id @default(cuid())
+  sku               String        @unique
+  name              String
+  description       String?
+  categoryId        String?
+  category          Category?     @relation(fields: [categoryId], references: [id])
+  unit              UnitOfMeasure @default(PIECE)
+  sellingPrice      Int
+  costPrice         Int           @default(0)
+  quantityInStock   Int           @default(0)
+  lowStockThreshold Int?
+  imageUrl          String?
+  isArchived        Boolean       @default(false)
+  createdById       String
+  createdBy         User          @relation("ProductCreatedBy", fields: [createdById], references: [id])
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  saleItems    SaleItem[]
+  stockInItems StockInItem[]
+  adjustments  StockAdjustment[]
+  movements    StockMovement[]
+  priceHistory PriceHistory[]
+  requests     CustomerRequest[]
+
+  @@index([isArchived, name])
+  @@index([categoryId])
+}
+
+model PriceHistory {
+  id              String   @id @default(cuid())
+  productId       String
+  product         Product  @relation(fields: [productId], references: [id])
+  oldSellingPrice Int
+  newSellingPrice Int
+  oldCostPrice    Int
+  newCostPrice    Int
+  changedById     String
+  changedBy       User     @relation(fields: [changedById], references: [id])
+  changedAt       DateTime @default(now())
+  note            String?
+
+  @@index([productId, changedAt])
+}
+
+model StockIn {
+  id           String        @id @default(cuid())
+  reference    String        @unique
+  receivedAt   DateTime      @default(now())
+  supplier     String?
+  note         String?
+  totalCost    Int
+  receivedById String
+  receivedBy   User          @relation(fields: [receivedById], references: [id])
+  items        StockInItem[]
+  createdAt    DateTime      @default(now())
+
+  @@index([receivedAt])
+}
+
+model StockInItem {
+  id        String  @id @default(cuid())
+  stockInId String
+  stockIn   StockIn @relation(fields: [stockInId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  unitCost  Int
+  lineCost  Int
+
+  @@index([productId])
+}
+
+model Sale {
+  id            String        @id @default(cuid())
+  receiptNumber String        @unique
+  soldAt        DateTime      @default(now())
+  status        SaleStatus    @default(COMPLETED)
+  subtotal      Int
+  discount      Int           @default(0)
+  total         Int
+  totalCost     Int
+  paymentMethod PaymentMethod @default(CASH)
+  customerName  String?
+  customerPhone String?
+  note          String?
+  soldById      String
+  soldBy        User          @relation("SoldBy", fields: [soldById], references: [id])
+  voidedAt      DateTime?
+  voidedById    String?
+  voidedBy      User?         @relation("VoidedBy", fields: [voidedById], references: [id])
+  voidReason    String?
+  items         SaleItem[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([soldAt])
+  @@index([status, soldAt])
+  @@index([soldById, soldAt])
+}
+
+model SaleItem {
+  id          String  @id @default(cuid())
+  saleId      String
+  sale        Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product @relation(fields: [productId], references: [id])
+  productName String
+  quantity    Int
+  unitPrice   Int
+  unitCost    Int
+  lineTotal   Int
+  lineCost    Int
+
+  @@index([productId])
+}
+
+model StockAdjustment {
+  id             String           @id @default(cuid())
+  productId      String
+  product        Product          @relation(fields: [productId], references: [id])
+  quantityChange Int
+  reason         AdjustmentReason
+  note           String?
+  adjustedById   String
+  adjustedBy     User             @relation(fields: [adjustedById], references: [id])
+  adjustedAt     DateTime         @default(now())
+
+  @@index([productId, adjustedAt])
+}
+
+model StockMovement {
+  id             String       @id @default(cuid())
+  productId      String
+  product        Product      @relation(fields: [productId], references: [id])
+  type           MovementType
+  quantityChange Int
+  balanceAfter   Int
+  referenceId    String
+  occurredAt     DateTime     @default(now())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id])
+
+  @@index([productId, occurredAt])
+}
+
+model CustomerRequest {
+  id             String        @id @default(cuid())
+  productId      String?
+  product        Product?      @relation(fields: [productId], references: [id])
+  itemName       String
+  quantityWanted Int?
+  note           String?
+  status         RequestStatus @default(OPEN)
+  requestedAt    DateTime      @default(now())
+  loggedById     String
+  loggedBy       User          @relation(fields: [loggedById], references: [id])
+
+  @@index([itemName])
+  @@index([productId])
+  @@index([requestedAt])
+}
+
+model AuditLog {
+  id         String      @id @default(cuid())
+  userId     String?
+  user       User?       @relation(fields: [userId], references: [id])
+  action     AuditAction
+  entityType String
+  entityId   String?
+  before     Json?
+  after      Json?
+  ipAddress  String?
+  createdAt  DateTime    @default(now())
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
+
+model Setting {
+  id                       Int      @id @default(1)
+  businessName             String   @default("Joy Palma Imports Limited")
+  logoUrl                  String?
+  address                  String?
+  phone                    String?
+  email                    String?
+  currencyCode             String   @default("GHS")
+  currencySymbol           String   @default("₵")
+  timeZone                 String   @default("Africa/Accra")
+  defaultLowStockThreshold Int      @default(5)
+  receiptFooter            String?
+  updatedAt                DateTime @updatedAt
+}
+
+model Counter {
+  key   String @id
+  value Int    @default(0)
+}

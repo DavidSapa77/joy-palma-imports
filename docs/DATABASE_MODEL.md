@@ -255,14 +255,72 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum Role { OWNER MANAGER SALES VIEWER }
-enum UnitOfMeasure { PIECE PACK CARTON DOZEN KG LITRE METRE SET PAIR }
-enum PaymentMethod { CASH MOBILE_MONEY BANK_TRANSFER CARD OTHER }
-enum SaleStatus { COMPLETED VOIDED }
-enum MovementType { STOCK_IN SALE SALE_VOID ADJUSTMENT }
-enum AdjustmentReason { DAMAGED LOST THEFT EXPIRED RECOUNT RETURNED_BY_CUSTOMER OTHER }
-enum RequestStatus { OPEN FULFILLED DISMISSED }
-enum AuditAction { CREATE UPDATE ARCHIVE RESTORE VOID LOGIN LOGIN_FAILED PASSWORD_RESET DEACTIVATE }
+enum Role {
+  OWNER
+  MANAGER
+  SALES
+  VIEWER
+}
+
+enum UnitOfMeasure {
+  PIECE
+  PACK
+  CARTON
+  DOZEN
+  KG
+  LITRE
+  METRE
+  SET
+  PAIR
+}
+
+enum PaymentMethod {
+  CASH
+  MOBILE_MONEY
+  BANK_TRANSFER
+  CARD
+  OTHER
+}
+
+enum SaleStatus {
+  COMPLETED
+  VOIDED
+}
+
+enum MovementType {
+  STOCK_IN
+  SALE
+  SALE_VOID
+  ADJUSTMENT
+}
+
+enum AdjustmentReason {
+  DAMAGED
+  LOST
+  THEFT
+  EXPIRED
+  RECOUNT
+  RETURNED_BY_CUSTOMER
+  OTHER
+}
+
+enum RequestStatus {
+  OPEN
+  FULFILLED
+  DISMISSED
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  ARCHIVE
+  RESTORE
+  VOID
+  LOGIN
+  LOGIN_FAILED
+  PASSWORD_RESET
+  DEACTIVATE
+}
 
 model User {
   id                 String    @id @default(cuid())
