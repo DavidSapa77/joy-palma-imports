@@ -80,6 +80,13 @@ The system will be used by roughly 4–10 people, each with their own login. Acc
 
 **Stock history:** Viewers can open the Stock pages (stock-in history, adjustments, movement ledger) read-only (`stock.view`); they cannot receive or adjust stock. Sales Staff see stock levels on products only.
 
+**Implementation:** the matrix is encoded in `src/lib/permissions.ts` (one permission key per row) and pinned cell by cell in `tests/unit/permissions.test.ts`. Where this matrix was ambiguous, the stricter reading was chosen:
+- *Cost price:* only the Owner may **set** it (`product.cost.set`). Managers see it; a Manager's stock-in records the shipment's unit cost but does not update the product's cost price.
+- *Categories:* Owner only (`category.manage`) — UI spec §3.1 places Categories under Admin, where the Manager sees only the Audit Log.
+- *Requests list:* Owner, Manager and Viewer can view it (`request.view`); Sales Staff log requests but don't browse the list. Changing request status (`request.manage`) is Owner/Manager.
+- *Sales history:* Sales Staff get `sale.viewOwnToday` only.
+- Users who still have to change their password are refused every action until they do.
+
 ## 5. Scope
 
 ### 5.1 In scope (v1)
