@@ -46,6 +46,7 @@ joy-palma-imports/
 │   │   └── validators/        Zod schemas
 │   ├── server/
 │   │   ├── actions/           Server Actions (products, sales, stock, requests, users, settings)
+│   │   ├── services/          transactional business logic (sale, void, stock-in, adjustment, price change) shared by actions and the seed
 │   │   └── queries/           read queries & reports
 │   └── middleware.ts          route protection
 ├── tests/  unit/  e2e/

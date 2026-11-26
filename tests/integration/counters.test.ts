@@ -101,7 +101,7 @@ describe("number helpers (integration)", () => {
   afterAll(async () => {
     // Real-key counters only exist in the test database; reset so reruns stay predictable.
     await prisma.counter.deleteMany({
-      where: { key: { in: ["receipt:2031", "stockin:2031", "receipt:2030", "sku"] } },
+      where: { key: { in: ["receipt:2031", "stockin:2031", "receipt:2030"] } },
     });
   });
 

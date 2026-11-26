@@ -81,7 +81,16 @@ pnpm db:migrate   # applies Prisma migrations to the database in DIRECT_URL
 pnpm db:seed      # creates settings + the Owner account (and demo data if SEED_DEMO=true)
 ```
 
-> The seed script arrives in Task 1.5; until then `pnpm db:seed` is a placeholder. `pnpm install` runs `prisma generate` automatically.
+`pnpm install` runs `prisma generate` automatically.
+
+**About the seed** ([`prisma/seed.ts`](prisma/seed.ts)):
+
+- Always upserts the Settings row and the Owner account. If the Owner already exists, the password is left unchanged.
+- With `SEED_DEMO=true` it also creates demo users, 6 categories, 33 products, 3 stock-ins, ~400 sales over the last 12 months (seasonal), a few voids, adjustments and price changes, and 40 customer requests. Stock and sales go through the same services the app uses, so stock movements, receipt numbers and price/cost snapshots are real.
+- Safe to run again: the demo inventory is only created when the database has no products, stock-ins or sales yet.
+- It finishes by checking that every product's stock equals the sum of its stock movements, then prints totals.
+
+Demo logins (development only): `manager@example.com`, `sales1@example.com`, `sales2@example.com`, `viewer@example.com`. All share the demo password defined in `prisma/seed-data.ts` (`DEMO_PASSWORD`).
 
 ### 5. Run the app
 
