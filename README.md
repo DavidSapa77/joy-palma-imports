@@ -15,7 +15,7 @@ A web app that replaces Joy Palma Imports Limited's physical sales book. Staff r
 
 ## Stack
 
-Next.js 15 · TypeScript · Tailwind CSS · shadcn/ui · Prisma · PostgreSQL (Neon) · Auth.js · Vitest · Playwright · Vercel
+Next.js 15 · TypeScript · Tailwind CSS · shadcn/ui · Prisma · PostgreSQL (local in development, Neon in production) · Auth.js · Vitest · Playwright · Vercel
 
 ## Local setup
 
@@ -24,7 +24,7 @@ Next.js 15 · TypeScript · Tailwind CSS · shadcn/ui · Prisma · PostgreSQL (N
 - **Node.js 22 LTS** (22.12 or newer). The repo has an `.nvmrc`, so with nvm run `nvm use`.
 - **pnpm 10.** The exact version is pinned in `package.json`; the easiest way to get it is
   `corepack enable` (Corepack ships with Node 22).
-- A free **[Neon](https://neon.tech) PostgreSQL** database.
+- **PostgreSQL 17** installed locally for development (production uses Neon, see [Production database](#production-database-neon--phase-11)).
 
 ### 1. Install dependencies
 
@@ -34,15 +34,25 @@ cd joy-palma-imports
 pnpm install
 ```
 
-### 2. Create a Neon database
+### 2. Install PostgreSQL and create the databases
 
-1. Sign in to [console.neon.tech](https://console.neon.tech) and create a project (pick the region closest to Ghana, e.g. **AWS Europe (Frankfurt)**).
-2. Create a database (e.g. `joy_palma`), or use the default `neondb`.
-3. Open **Connect** and copy two connection strings:
-   - the **pooled** string (host contains `-pooler`) → `DATABASE_URL`
-   - the **direct** string (turn "Connection pooling" off) → `DIRECT_URL`
+Development uses a **local PostgreSQL 17** server. On Windows (Windows will show an admin prompt):
 
-   Tip: create a separate Neon branch for development so local work never touches production data.
+```powershell
+winget install PostgreSQL.PostgreSQL.17
+```
+
+The installer sets a password for the `postgres` superuser, so keep it safe. PostgreSQL then runs as the Windows service `postgresql-x64-17` on port 5432, and `psql` lives in `C:\Program Files\PostgreSQL\17\bin`. On macOS use [Postgres.app](https://postgresapp.com) or `brew install postgresql@17`; on Linux use your package manager.
+
+Create an app user and two databases:
+
+```bash
+psql -h localhost -U postgres -c "CREATE ROLE joy_palma LOGIN CREATEDB PASSWORD 'choose-a-password';"
+psql -h localhost -U postgres -c "CREATE DATABASE joy_palma_dev OWNER joy_palma;"
+psql -h localhost -U postgres -c "CREATE DATABASE joy_palma_test OWNER joy_palma;"
+```
+
+`CREATEDB` is needed because `prisma migrate dev` creates a temporary shadow database. `joy_palma_test` is reserved for integration tests.
 
 ### 3. Configure environment variables
 
@@ -52,14 +62,15 @@ cp .env.example .env
 
 Fill in `.env`:
 
-| Variable              | What to put there                                                        |
-| --------------------- | ------------------------------------------------------------------------ |
-| `DATABASE_URL`        | Neon pooled connection string                                            |
-| `DIRECT_URL`          | Neon direct connection string (used by migrations)                       |
-| `AUTH_SECRET`         | Output of `openssl rand -base64 32`                                      |
-| `SEED_OWNER_EMAIL`    | Email for the first Owner account                                        |
-| `SEED_OWNER_PASSWORD` | Password for the first Owner account                                     |
-| `SEED_DEMO`           | `true` to load demo users, products and 12 months of sales; else `false` |
+| Variable              | What to put there                                                              |
+| --------------------- | ------------------------------------------------------------------------------ |
+| `DATABASE_URL`        | `postgresql://joy_palma:<password>@localhost:5432/joy_palma_dev?schema=public` |
+| `DIRECT_URL`          | Same as `DATABASE_URL` locally (used by Prisma Migrate)                        |
+| `TEST_DATABASE_URL`   | Same, but with the `joy_palma_test` database                                   |
+| `AUTH_SECRET`         | Output of `openssl rand -base64 32`                                            |
+| `SEED_OWNER_EMAIL`    | Email for the first Owner account                                              |
+| `SEED_OWNER_PASSWORD` | Password for the first Owner account                                           |
+| `SEED_DEMO`           | `true` to load demo users, products and 12 months of sales; else `false`       |
 
 `.env` is git-ignored — never commit it. Only `.env.example` is tracked.
 
@@ -70,7 +81,7 @@ pnpm db:migrate   # applies Prisma migrations to the database in DIRECT_URL
 pnpm db:seed      # creates settings + the Owner account (and demo data if SEED_DEMO=true)
 ```
 
-> The Prisma schema, migrations and seed script arrive in Phase 1 of the build plan; until then these commands are placeholders.
+> The seed script arrives in Task 1.5; until then `pnpm db:seed` is a placeholder. `pnpm install` runs `prisma generate` automatically.
 
 ### 5. Run the app
 
@@ -79,6 +90,15 @@ pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) and sign in with `SEED_OWNER_EMAIL` / `SEED_OWNER_PASSWORD`. A temporary design preview lives at [/styleguide](http://localhost:3000/styleguide).
+
+## Production database (Neon) — Phase 11
+
+Development runs on the local PostgreSQL database above. At deployment (Phase 11) we create a [Neon](https://neon.tech) project (region closest to Ghana, e.g. AWS Europe (Frankfurt)) and switch the two connection strings in Vercel's environment variables:
+
+- `DATABASE_URL` → Neon **pooled** string (host contains `-pooler`), used by the app at runtime
+- `DIRECT_URL` → Neon **direct** string, used by `prisma migrate deploy`
+
+No code changes are needed, only the connection strings.
 
 ## Scripts
 
@@ -93,6 +113,7 @@ Open [http://localhost:3000](http://localhost:3000) and sign in with `SEED_OWNER
 | `pnpm test:e2e`     | End-to-end tests (Playwright)                |
 | `pnpm db:migrate`   | Create/apply Prisma migrations (development) |
 | `pnpm db:seed`      | Seed the database                            |
+| `pnpm db:generate`  | Regenerate the Prisma Client                 |
 | `pnpm db:studio`    | Browse the database in Prisma Studio         |
 | `pnpm format`       | Format all files with Prettier               |
 | `pnpm format:check` | Check formatting without writing             |
@@ -112,4 +133,4 @@ See [docs/PLAN.md](docs/PLAN.md) for the full conventions and folder structure.
 
 ## Status
 
-Phase 0 (project setup) in progress — see the [Build Plan](docs/PLAN.md).
+Phase 0 done; Phase 1 (database) in progress — see the [Build Plan](docs/PLAN.md).

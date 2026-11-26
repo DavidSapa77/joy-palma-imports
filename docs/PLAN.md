@@ -10,7 +10,7 @@ Reference documents: [PRD](./PRD.md) · [Database Model](./DATABASE_MODEL.md) ·
 ---
 
 ## Tech stack (fixed)
-Next.js 15 (App Router) · TypeScript (strict) · Tailwind CSS · shadcn/ui · lucide-react · Recharts · Prisma · PostgreSQL (Neon) · Auth.js v5 (credentials) · bcryptjs · Zod · React Hook Form · TanStack Table · date-fns + date-fns-tz · Vitest · Playwright · pnpm · Vercel.
+Next.js 15 (App Router) · TypeScript (strict) · Tailwind CSS · shadcn/ui · lucide-react · Recharts · Prisma · PostgreSQL (local PostgreSQL 17 in development, Neon in production) · Auth.js v5 (credentials) · bcryptjs · Zod · React Hook Form · TanStack Table · date-fns + date-fns-tz · Vitest · Playwright · pnpm · Vercel.
 
 ## Folder structure
 
@@ -76,7 +76,7 @@ joy-palma-imports/
 - [ ] 1.3 `lib/db.ts` singleton.
 - [ ] 1.4 `lib/money.ts`, `lib/dates.ts`, `lib/counters.ts` + unit tests.
 - [ ] 1.5 Seed: owner + settings; demo data behind `SEED_DEMO=true` (12 months, seasonal).
-**Done when:** `pnpm db:migrate && pnpm db:seed` works on Neon; tests pass.
+**Done when:** `pnpm db:migrate && pnpm db:seed` works on the local PostgreSQL database; tests pass.
 
 ## Phase 2 — Auth, roles & app shell (1–1.5 days)
 - [ ] 2.1 Auth.js credentials provider, bcrypt verify, session includes `id`, `role`, `name`; reject inactive users.
@@ -140,7 +140,7 @@ joy-palma-imports/
 - [ ] 10.3 Performance check with 50k sale items of seed data; add indexes if needed.
 
 ## Phase 11 — Deployment & handover (½ day)
-- [ ] 11.1 Neon production DB; Vercel project linked to GitHub; env vars set; `prisma migrate deploy` in build.
+- [ ] 11.1 Neon production DB: switch DATABASE_URL/DIRECT_URL to Neon (pooled / direct strings); Vercel project linked to GitHub; env vars set; `prisma migrate deploy` in build.
 - [ ] 11.2 Seed production Owner account (no demo data).
 - [ ] 11.3 Custom domain (optional) + HTTPS.
 - [ ] 11.4 Backups confirmed (Neon PITR).

@@ -183,7 +183,7 @@ The system will be used by roughly 4–10 people, each with their own login. Acc
 |---|---|---|
 | Framework | Next.js (App Router) + TypeScript | One codebase for UI and API, easy hosting |
 | UI | Tailwind CSS + shadcn/ui, Recharts for charts, lucide-react icons | Professional look quickly |
-| Database | PostgreSQL (Neon or Supabase free tier) | Reliable, relational, good for reports |
+| Database | PostgreSQL (local in development; Neon or Supabase free tier in production) | Reliable, relational, good for reports |
 | ORM | Prisma | Type-safe schema & migrations |
 | Auth | Auth.js (NextAuth) credentials provider | Email/password with roles |
 | Validation | Zod | Shared client/server validation |
