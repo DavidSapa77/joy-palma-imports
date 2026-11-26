@@ -307,3 +307,23 @@ model Counter {
   key   String @id
   value Int    @default(0)
 }
+
+enum LoginOutcome {
+  SUCCESS
+  FAILED
+  BLOCKED
+}
+
+/// Login attempts per email + IP, used for rate limiting (survives restarts).
+/// FAILED rows inside the window count towards the limit; BLOCKED rows don't,
+/// so the lockout always ends 15 minutes after the 5th failure.
+model LoginAttempt {
+  id        String       @id @default(cuid())
+  email     String
+  ipAddress String
+  outcome   LoginOutcome
+  createdAt DateTime     @default(now())
+
+  @@index([email, ipAddress, createdAt])
+  @@index([createdAt])
+}

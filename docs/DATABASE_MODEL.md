@@ -51,6 +51,7 @@ erDiagram
 | `MovementType` | `STOCK_IN`, `SALE`, `SALE_VOID`, `ADJUSTMENT` |
 | `AdjustmentReason` | `DAMAGED`, `LOST`, `THEFT`, `EXPIRED`, `RECOUNT`, `RETURNED_BY_CUSTOMER`, `OTHER` |
 | `RequestStatus` | `OPEN`, `FULFILLED`, `DISMISSED` |
+| `LoginOutcome` | `SUCCESS`, `FAILED`, `BLOCKED` |
 | `AuditAction` | `CREATE`, `UPDATE`, `ARCHIVE`, `RESTORE`, `VOID`, `LOGIN`, `LOGIN_FAILED`, `PASSWORD_RESET`, `DEACTIVATE` |
 
 ## 4. Tables
@@ -241,6 +242,17 @@ Index: `(entityType, entityId)`, `(createdAt)`.
 |---|---|---|
 | key | String | PK, e.g. `receipt:2026`, `stockin:2026`, `sku` |
 | value | Int | incremented inside the transaction |
+
+### 4.15 `LoginAttempt` (login rate limiting)
+| Column | Type | Notes |
+|---|---|---|
+| id | String | PK |
+| email | String | lower-cased, as typed (may not be a real user) |
+| ipAddress | String | client IP, "unknown" if not available |
+| outcome | LoginOutcome | `SUCCESS`, `FAILED`, `BLOCKED` |
+| createdAt | DateTime | |
+
+Index: `(email, ipAddress, createdAt)`, `(createdAt)`. Rule: 5 `FAILED` rows for the same email + IP within 15 minutes (since the last `SUCCESS`) block further attempts until the oldest of them is 15 minutes old. `BLOCKED` rows don't extend the lockout. Stored in the database so the limit survives restarts. Added in Task 2.1.
 
 ## 5. Prisma schema
 

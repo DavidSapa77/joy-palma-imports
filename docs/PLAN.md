@@ -141,8 +141,8 @@ joy-palma-imports/
 - [ ] 10.3 Performance check with 50k sale items of seed data; add indexes if needed.
 
 ## Phase 11 — Deployment & handover (½ day)
-- [ ] 11.1 Neon production DB: switch DATABASE_URL/DIRECT_URL to Neon (pooled / direct strings); Vercel project linked to GitHub; env vars set; `prisma migrate deploy` in build.
-- [ ] 11.2 Seed production Owner account (no demo data).
+- [ ] 11.1 Neon production DB: switch DATABASE_URL/DIRECT_URL to Neon (pooled / direct strings); Vercel project linked to GitHub; env vars set; `prisma migrate deploy` in build; production env must have `SEED_DEMO="false"` (demo accounts must never exist there).
+- [ ] 11.2 Seed production Owner account with `SEED_DEMO="false"`, so demo accounts and demo data never exist in production.
 - [ ] 11.3 Custom domain (optional) + HTTPS.
 - [ ] 11.4 Backups confirmed (Neon PITR).
 - [ ] 11.5 User guide (`docs/USER_GUIDE.md`): one page per role with screenshots.

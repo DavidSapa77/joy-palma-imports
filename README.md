@@ -120,13 +120,17 @@ No code changes are needed, only the connection strings.
 | `pnpm typecheck`        | TypeScript type check (`tsc --noEmit`)                            |
 | `pnpm test`             | Unit tests (Vitest)                                               |
 | `pnpm test:integration` | Integration tests against `TEST_DATABASE_URL` (migrates it first) |
-| `pnpm test:e2e`         | End-to-end tests (Playwright)                                     |
+| `pnpm test:e2e`         | End-to-end tests (Playwright) at 360px and 1280px — see below     |
 | `pnpm db:migrate`       | Create/apply Prisma migrations (development)                      |
 | `pnpm db:seed`          | Seed the database                                                 |
 | `pnpm db:generate`      | Regenerate the Prisma Client                                      |
 | `pnpm db:studio`        | Browse the database in Prisma Studio                              |
 | `pnpm format`           | Format all files with Prettier                                    |
 | `pnpm format:check`     | Check formatting without writing                                  |
+
+## End-to-end tests
+
+`pnpm test:e2e` builds the app into `.next-e2e` (separate from `pnpm dev`), starts it on port 3100 against **`TEST_DATABASE_URL`** (never the dev database), creates throwaway `@test.local` users and runs every test at 360px and 1280px. First time only, install the browser: `pnpm exec playwright install chromium`. Set `E2E_SCREENSHOT_DIR` to choose where screenshots go (default `test-results/screenshots`).
 
 ## Continuous integration
 
