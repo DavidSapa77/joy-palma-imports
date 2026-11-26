@@ -102,25 +102,26 @@ No code changes are needed, only the connection strings.
 
 ## Scripts
 
-| Command             | Does                                         |
-| ------------------- | -------------------------------------------- |
-| `pnpm dev`          | Start the dev server                         |
-| `pnpm build`        | Production build                             |
-| `pnpm start`        | Run the production build                     |
-| `pnpm lint`         | ESLint                                       |
-| `pnpm typecheck`    | TypeScript type check (`tsc --noEmit`)       |
-| `pnpm test`         | Unit tests (Vitest)                          |
-| `pnpm test:e2e`     | End-to-end tests (Playwright)                |
-| `pnpm db:migrate`   | Create/apply Prisma migrations (development) |
-| `pnpm db:seed`      | Seed the database                            |
-| `pnpm db:generate`  | Regenerate the Prisma Client                 |
-| `pnpm db:studio`    | Browse the database in Prisma Studio         |
-| `pnpm format`       | Format all files with Prettier               |
-| `pnpm format:check` | Check formatting without writing             |
+| Command                 | Does                                                              |
+| ----------------------- | ----------------------------------------------------------------- |
+| `pnpm dev`              | Start the dev server                                              |
+| `pnpm build`            | Production build                                                  |
+| `pnpm start`            | Run the production build                                          |
+| `pnpm lint`             | ESLint                                                            |
+| `pnpm typecheck`        | TypeScript type check (`tsc --noEmit`)                            |
+| `pnpm test`             | Unit tests (Vitest)                                               |
+| `pnpm test:integration` | Integration tests against `TEST_DATABASE_URL` (migrates it first) |
+| `pnpm test:e2e`         | End-to-end tests (Playwright)                                     |
+| `pnpm db:migrate`       | Create/apply Prisma migrations (development)                      |
+| `pnpm db:seed`          | Seed the database                                                 |
+| `pnpm db:generate`      | Regenerate the Prisma Client                                      |
+| `pnpm db:studio`        | Browse the database in Prisma Studio                              |
+| `pnpm format`           | Format all files with Prettier                                    |
+| `pnpm format:check`     | Check formatting without writing                                  |
 
 ## Continuous integration
 
-GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs on every push and pull request using Node 22: install → lint → typecheck → unit tests. Keep it green before merging.
+GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs on every push and pull request using Node 22: install → lint → typecheck → unit tests, plus a second job that runs the integration tests against a throwaway PostgreSQL 17 service. Keep it green before merging.
 
 ## Conventions
 
