@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { auth, clientIp, signIn, signOut, unstable_update } from "@/lib/auth";
 import { LOGIN_PATH, SET_PASSWORD_PATH } from "@/lib/auth.config";
 import { prisma } from "@/lib/db";
+import { HOME_PATH } from "@/lib/routes";
 import { safeCallbackUrl } from "@/lib/validators/auth";
 import { changeOwnPassword } from "@/server/auth/change-password";
 
@@ -21,7 +22,10 @@ export type LoginState = { email: string; error?: LoginErrorCode };
 export async function loginAction(_prev: LoginState, formData: FormData): Promise<LoginState> {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  const redirectTo = safeCallbackUrl(formData.get("callbackUrl"));
+  // "/" only redirects to the dashboard, and a server action can't follow a
+  // second redirect, so go there directly.
+  const callbackUrl = safeCallbackUrl(formData.get("callbackUrl"), HOME_PATH);
+  const redirectTo = callbackUrl === "/" ? HOME_PATH : callbackUrl;
 
   try {
     await signIn("credentials", { email, password, redirect: false });
@@ -67,7 +71,7 @@ export async function setPasswordAction(
 
   // Re-read the user into the session (mustChangePassword is now false).
   await unstable_update({});
-  redirect("/");
+  redirect(HOME_PATH);
 }
 
 export async function signOutAction(): Promise<void> {

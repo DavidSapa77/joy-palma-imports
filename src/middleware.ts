@@ -4,8 +4,9 @@ import { authConfig } from "@/lib/auth.config";
 
 /**
  * Route protection (edge runtime, no database). Signed-out users are sent to
- * /login; users who must change their password are sent to /set-password.
- * Role-based route guards are added in Task 2.5.
+ * /login; users who must change their password are sent to /set-password;
+ * roles without access to a page (lib/routes.ts) get the 403 page. See the
+ * `authorized` callback in lib/auth.config.ts.
  */
 export const { auth: middleware } = NextAuth(authConfig);
 

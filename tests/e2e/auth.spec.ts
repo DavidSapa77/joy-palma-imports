@@ -1,25 +1,10 @@
 import { expect, test, type Page } from "@playwright/test";
 
 import { e2eUsers, E2E_PASSWORD } from "./fixtures";
-
-const SCREENSHOTS = process.env.E2E_SCREENSHOT_DIR ?? "test-results/screenshots";
-
-async function signIn(page: Page, email: string, password: string) {
-  await page.goto("/login");
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password", { exact: true }).fill(password);
-  await page.getByRole("button", { name: "Sign in" }).click();
-}
+import { expectNoHorizontalScroll, SCREENSHOTS, signIn, signOut } from "./helpers";
 
 /** The form's error banner (Next.js also renders an empty role=alert route announcer). */
 const formAlert = (page: Page) => page.locator('[data-slot="form-alert"]');
-
-async function expectNoHorizontalScroll(page: Page) {
-  const overflow = await page.evaluate(
-    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
-  );
-  expect(overflow).toBeLessThanOrEqual(0);
-}
 
 test("login page layout", async ({ page }, testInfo) => {
   await page.goto("/login");
@@ -99,14 +84,13 @@ test("signed-out users are sent to the login page", async ({ page }) => {
 
 test("correct login lands in the app, sign out returns to login", async ({ page }) => {
   await signIn(page, e2eUsers.active, E2E_PASSWORD);
-  await expect(page).toHaveURL("/");
-  await expect(page.getByText("Signed in as Esi Active · sales")).toBeVisible();
+  await expect(page).toHaveURL("/dashboard");
+  await expect(page.getByText("Signed in as Esi Active · Sales Staff")).toBeVisible();
 
   await page.goto("/login"); // already signed in → back to the app
-  await expect(page).toHaveURL("/");
+  await expect(page).toHaveURL("/dashboard");
 
-  await page.getByRole("button", { name: "Sign out" }).click();
-  await expect(page).toHaveURL(/\/login/);
+  await signOut(page);
   await page.goto("/");
   await expect(page).toHaveURL(/\/login/);
 });
@@ -150,12 +134,11 @@ test("users who must change their password are forced to set a new one", async (
   await newPassword.fill("A-fresh-password-1");
   await confirm.fill("A-fresh-password-1");
   await save.click();
-  await expect(page).toHaveURL("/");
+  await expect(page).toHaveURL("/dashboard");
   await expect(page.getByText("Signed in as Nana New")).toBeVisible();
 
   // Sign in again with the new password: no more forced change.
-  await page.getByRole("button", { name: "Sign out" }).click();
-  await expect(page).toHaveURL(/\/login/);
+  await signOut(page);
   await signIn(page, email, "A-fresh-password-1");
-  await expect(page).toHaveURL("/");
+  await expect(page).toHaveURL("/dashboard");
 });

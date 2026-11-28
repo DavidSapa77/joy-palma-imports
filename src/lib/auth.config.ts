@@ -1,4 +1,7 @@
 import type { NextAuthConfig } from "next-auth";
+import { NextResponse } from "next/server";
+
+import { canAccessPath, FORBIDDEN_PATH, HOME_PATH } from "@/lib/routes";
 
 /**
  * Edge-safe Auth.js config (no Prisma, no bcrypt), shared by middleware.ts and
@@ -20,20 +23,30 @@ export const authConfig = {
   trustHost: true,
   providers: [],
   callbacks: {
-    /** Route protection, run by middleware.ts. Role checks come in Task 2.5. */
+    /**
+     * Route protection, run by middleware.ts: signed-out → /login, pending
+     * password change → /set-password, role without access → the 403 page
+     * (rewritten, so the address bar keeps the requested URL). Pages repeat
+     * the role check with guardRoute(), because the JWT role can be up to a
+     * minute stale and pages rendered from a server-action redirect skip
+     * middleware.
+     */
     authorized({ auth, request }) {
       const { pathname } = request.nextUrl;
       const user = auth?.user;
 
       if (pathname === LOGIN_PATH) {
         if (!user) return true;
-        const target = user.mustChangePassword ? SET_PASSWORD_PATH : "/";
+        const target = user.mustChangePassword ? SET_PASSWORD_PATH : HOME_PATH;
         return Response.redirect(new URL(target, request.nextUrl));
       }
       if (!user) return false; // → /login?callbackUrl=…
 
       if (user.mustChangePassword && pathname !== SET_PASSWORD_PATH) {
         return Response.redirect(new URL(SET_PASSWORD_PATH, request.nextUrl));
+      }
+      if (!canAccessPath(user.role, pathname)) {
+        return NextResponse.rewrite(new URL(FORBIDDEN_PATH, request.nextUrl));
       }
       return true;
     },

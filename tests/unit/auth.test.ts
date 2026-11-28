@@ -133,6 +133,19 @@ describe("route protection (authorized callback)", () => {
 
   it("lets signed-in users through and away from /login", () => {
     expect(check("/", user(false))).toBe(true);
-    expect(location(check("/login", user(false)))).toBe("/");
+    expect(location(check("/login", user(false)))).toBe("/dashboard");
+  });
+
+  it("rewrites pages the role can't open to the 403 page (Sales Staff)", () => {
+    const rewriteTarget = (result: ReturnType<typeof check>) =>
+      result instanceof Response
+        ? new URL(result.headers.get("x-middleware-rewrite")!).pathname
+        : result;
+    for (const path of ["/admin", "/admin/users", "/stock", "/stock/in", "/reports"]) {
+      expect(rewriteTarget(check(path, user(false))), path).toBe("/forbidden");
+    }
+    for (const path of ["/dashboard", "/sales/new", "/products", "/requests"]) {
+      expect(check(path, user(false)), path).toBe(true);
+    }
   });
 });

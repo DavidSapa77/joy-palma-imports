@@ -6,7 +6,7 @@ import { hashPassword } from "@/lib/password";
 
 import { getTestDatabaseUrl } from "../integration/test-env";
 
-import { e2eUsers, E2E_PASSWORD, PROJECTS } from "./fixtures";
+import { e2eUsers, E2E_PASSWORD, PROJECTS, ROLE_USER_NAMES } from "./fixtures";
 
 /** Migrates the test database and (re)creates the e2e users with known state. */
 export default async function globalSetup(): Promise<void> {
@@ -37,6 +37,18 @@ export default async function globalSetup(): Promise<void> {
     for (const user of users) {
       const data = { ...user, passwordHash, role: "SALES" as const };
       await prisma.user.upsert({ where: { email: user.email }, create: data, update: data });
+    }
+    for (const role of ["OWNER", "MANAGER", "SALES", "VIEWER"] as const) {
+      const email = e2eUsers.role(role);
+      const data = {
+        email,
+        name: ROLE_USER_NAMES[role],
+        role,
+        passwordHash,
+        isActive: true,
+        mustChangePassword: false,
+      };
+      await prisma.user.upsert({ where: { email }, create: data, update: data });
     }
     // Fresh rate-limit state for every run (test database only).
     await prisma.loginAttempt.deleteMany({ where: { email: { endsWith: "@test.local" } } });

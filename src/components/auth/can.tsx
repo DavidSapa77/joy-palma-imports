@@ -25,6 +25,11 @@ export function PermissionsProvider({
   return <RoleContext.Provider value={role}>{children}</RoleContext.Provider>;
 }
 
+/** The current user's role (null outside a provider). */
+export function useRole(): Role | null {
+  return useContext(RoleContext);
+}
+
 /** True if the current user's role has the permission (false outside a provider). */
 export function useCan(permission: Permission): boolean {
   return can(useContext(RoleContext), permission);

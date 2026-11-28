@@ -57,6 +57,14 @@ export type Permission = (typeof PERMISSIONS)[number];
 
 export const ROLES = ["OWNER", "MANAGER", "SALES", "VIEWER"] as const satisfies readonly Role[];
 
+/** Display names for the role badge (PRD §4). */
+export const ROLE_LABELS: Readonly<Record<Role, string>> = {
+  OWNER: "Owner",
+  MANAGER: "Manager",
+  SALES: "Sales Staff",
+  VIEWER: "Viewer",
+};
+
 /*
  * Ambiguities in the PRD matrix — the stricter option is used:
  *

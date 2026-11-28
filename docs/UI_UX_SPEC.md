@@ -93,8 +93,11 @@ Login
 | Reports | ✅ | ✅ | — | ✅ |
 | Admin | ✅ | Audit Log only | — | — |
 
-**Mobile bottom nav (Sales role):** Home · **+ Sale** (raised centre button) · Products · Requests · Menu.
-**Mobile bottom nav (Owner/Manager):** Home · + Sale · Products · Reports · Menu.
+**Mobile bottom nav (Sales role):** Home · Products · **+ Sale** (raised centre button) · Requests · Menu.
+**Mobile bottom nav (Owner/Manager):** Home · Products · **+ Sale** · Reports · Menu.
+**Mobile bottom nav (Viewer, can't sell):** Home · Products · Sales · Reports · Menu.
+
+Menus and route guards share one source of truth (`src/lib/routes.ts`): an item is shown exactly when its page lets the role in. Opening a page the role can't use (e.g. `/admin`, `/stock`, `/reports` as Sales Staff) shows a friendly 403 page inside the app shell, checked on the server.
 
 ## 4. Screen specifications
 

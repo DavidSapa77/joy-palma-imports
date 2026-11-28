@@ -14,3 +14,21 @@ export async function getBusinessName(): Promise<string> {
     return FALLBACK_BUSINESS_NAME;
   }
 }
+
+export type BusinessBrand = { name: string; logoUrl: string | null };
+
+/** Business name and logo for the app shell's sidebar header (UI spec §4.2). */
+export async function getBusinessBrand(): Promise<BusinessBrand> {
+  try {
+    const setting = await prisma.setting.findUnique({
+      where: { id: 1 },
+      select: { businessName: true, logoUrl: true },
+    });
+    return {
+      name: setting?.businessName || FALLBACK_BUSINESS_NAME,
+      logoUrl: setting?.logoUrl || null,
+    };
+  } catch {
+    return { name: FALLBACK_BUSINESS_NAME, logoUrl: null };
+  }
+}
