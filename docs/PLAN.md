@@ -148,6 +148,12 @@ joy-palma-imports/
 - [ ] 11.5 User guide (`docs/USER_GUIDE.md`): one page per role with screenshots.
 - [ ] 11.6 Handover: owner login, how to add staff, how to read Best Sellers & Restock Suggestions.
 
+## Phase 12 — Public website (1 day) — *not started; build only when the client sends the content*
+- [ ] 12.1 Public landing page at `/` for Joy Palma Imports: about the business, product categories, contact (phone, **WhatsApp** link, email, **location** / map), and a **"Staff login"** button to `/login`.
+- [ ] 12.2 No public sign-up anywhere; accounts are still created only by the Owner (Admin → Users).
+- [ ] 12.3 Signed-in users who open `/` go straight to `/dashboard` (today `/` always redirects to `/dashboard`; middleware must then allow `/` for signed-out visitors).
+- [ ] 12.4 All text, photos and contact details come from the client; nothing is invented. Mobile-first, fast on 3G, basic SEO (title, description, Open Graph).
+
 ---
 
 ## Timeline summary
@@ -165,7 +171,8 @@ joy-palma-imports/
 | 9 Polish | 1 |
 | 10 Testing | 1 |
 | 11 Deploy | 0.5 |
-| **Total** | **≈ 14.5 working days** |
+| **Total (v1 app)** | **≈ 14.5 working days** |
+| 12 Public website (later, needs client content) | 1 |
 
 ## Definition of done (every task)
 - Types pass, lint passes, relevant tests written and passing.
