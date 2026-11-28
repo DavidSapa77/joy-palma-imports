@@ -36,10 +36,12 @@ const MATRIX: Record<Permission, [boolean, boolean, boolean, boolean]> = {
   "product.price.setInitial":        [Y,     Y,      N,     N],
   "product.price.change":            [Y,     N,      N,     N],
   "product.cost.view":               [Y,     Y,      N,     Y],
-  "product.cost.set":                [Y,     N,      N,     N],
+  "product.cost.setInitial":         [Y,     Y,      N,     N],
+  "product.cost.change":             [Y,     N,      N,     N],
   "category.manage":                 [Y,     N,      N,     N],
   "stock.view":                      [Y,     Y,      N,     Y],
   "stock.in":                        [Y,     Y,      N,     N],
+  "stock.in.updateCost":             [Y,     Y,      N,     N],
   "stock.adjust":                    [Y,     Y,      N,     N],
   "sale.create":                     [Y,     Y,      Y,     N],
   "sale.discount":                   [Y,     Y,      N,     N],
@@ -91,8 +93,20 @@ describe("key business rules", () => {
     expect(ROLES.filter((r) => can(r, "product.price.setInitial"))).toEqual(["OWNER", "MANAGER"]);
   });
 
+  it("Managers record cost at creation and via stock-in; only the Owner edits it directly", () => {
+    expect(ROLES.filter((r) => can(r, "product.cost.setInitial"))).toEqual(["OWNER", "MANAGER"]);
+    expect(ROLES.filter((r) => can(r, "stock.in.updateCost"))).toEqual(["OWNER", "MANAGER"]);
+    expect(ROLES.filter((r) => can(r, "product.cost.change"))).toEqual(["OWNER"]);
+  });
+
   it("Sales Staff never see cost or profit", () => {
-    for (const p of ["product.cost.view", "product.cost.set", "report.profit"] as const) {
+    for (const p of [
+      "product.cost.view",
+      "product.cost.setInitial",
+      "product.cost.change",
+      "stock.in.updateCost",
+      "report.profit",
+    ] as const) {
       expect(can("SALES", p)).toBe(false);
     }
   });

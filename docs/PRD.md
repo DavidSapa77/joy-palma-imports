@@ -55,7 +55,10 @@ The system will be used by roughly 4–10 people, each with their own login. Acc
 | Create / edit product details (name, category, SKU) | ✅ | ✅ | ❌ | ❌ |
 | **Set initial selling price** (when creating a product) | ✅ | ✅ | ❌ | ❌ |
 | **Change selling price** of an existing product | ✅ | ❌ | ❌ | ❌ |
-| Set or view cost price | ✅ | ✅ (view) | ❌ | ✅ (view) |
+| View cost price | ✅ | ✅ | ❌ | ✅ |
+| Set cost price when creating a product | ✅ | ✅ (required) | ❌ | ❌ |
+| Update cost price via stock-in ("update cost" option) | ✅ | ✅ | ❌ | ❌ |
+| Edit cost price of an existing product directly | ✅ | ❌ | ❌ | ❌ |
 | Archive a product | ✅ | ✅ | ❌ | ❌ |
 | View stock history (stock-ins, adjustments, movement ledger) | ✅ | ✅ | ❌ | ✅ (read-only) |
 | Record stock-in (new shipment) | ✅ | ✅ | ❌ | ❌ |
@@ -80,8 +83,8 @@ The system will be used by roughly 4–10 people, each with their own login. Acc
 
 **Stock history:** Viewers can open the Stock pages (stock-in history, adjustments, movement ledger) read-only (`stock.view`); they cannot receive or adjust stock. Sales Staff see stock levels on products only.
 
-**Implementation:** the matrix is encoded in `src/lib/permissions.ts` (one permission key per row) and pinned cell by cell in `tests/unit/permissions.test.ts`. Where this matrix was ambiguous, the stricter reading was chosen:
-- *Cost price:* only the Owner may **set** it (`product.cost.set`). Managers see it; a Manager's stock-in records the shipment's unit cost but does not update the product's cost price.
+**Implementation:** the matrix is encoded in `src/lib/permissions.ts` (one permission key per row) and pinned cell by cell in `tests/unit/permissions.test.tsx`. Where this matrix was ambiguous, the stricter reading was chosen:
+- *Cost price* (owner decision): Owner and Manager set the cost price when creating a product (`product.cost.setInitial`; required when a Manager creates one). A stock-in by an Owner or Manager may update the product's cost price to the shipment's unit cost (`stock.in.updateCost`, the "Update product cost price" option), recorded in price history and the audit log. Editing the cost price of an existing product directly stays Owner-only (`product.cost.change`).
 - *Categories:* Owner only (`category.manage`) — UI spec §3.1 places Categories under Admin, where the Manager sees only the Audit Log.
 - *Requests list:* Owner, Manager and Viewer can view it (`request.view`); Sales Staff log requests but don't browse the list. Changing request status (`request.manage`) is Owner/Manager.
 - *Sales history:* Sales Staff get `sale.viewOwnToday` only.

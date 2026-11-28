@@ -24,11 +24,13 @@ export const PERMISSIONS = [
   "product.price.setInitial", // Set the selling price when creating a product
   "product.price.change", //    Change the selling price of an existing product
   "product.cost.view", //       See cost price (and margins)
-  "product.cost.set", //        Set or change cost price (see ambiguity note 1)
+  "product.cost.setInitial", // Set the cost price when creating a product (note 1)
+  "product.cost.change", //     Edit the cost price of an existing product directly (note 1)
   "category.manage", //         Create / rename / archive categories (note 2)
   // Stock
   "stock.view", //              Stock history: stock-ins, adjustments, movement ledger
   "stock.in", //                Record a stock-in (new shipment)
+  "stock.in.updateCost", //     Let a stock-in update the product's cost price (note 1)
   "stock.adjust", //            Manual stock adjustment
   // Sales
   "sale.create", //             Record a sale
@@ -58,10 +60,15 @@ export const ROLES = ["OWNER", "MANAGER", "SALES", "VIEWER"] as const satisfies 
 /*
  * Ambiguities in the PRD matrix — the stricter option is used:
  *
- * 1. "Set or view cost price: Owner ✅ · Manager ✅ (view) · Viewer ✅ (view)".
- *    Only the Owner may SET cost price. A Manager's stock-in still records the
- *    unit cost of that shipment (StockInItem), but cannot update the product's
- *    cost price, and cannot enter a cost when creating a product.
+ * 1. Cost price (owner decision, replaces the original strict reading of
+ *    "Set or view cost price: Owner ✅ · Manager ✅ (view) · Viewer ✅ (view)"):
+ *    - Owner and Manager set the cost price when creating a product
+ *      (product.cost.setInitial; the cost is required when a Manager creates one).
+ *    - Owner and Manager may let a stock-in update the product's cost price to
+ *      the shipment's unit cost (stock.in.updateCost), recorded in
+ *      PriceHistory and the audit log.
+ *    - Editing the cost price of an existing product directly is Owner-only
+ *      (product.cost.change).
  * 2. Categories: PRD F2 says "managed by Owner/Manager", but UI spec §3.1 puts
  *    Categories under Admin, where the Manager sees only the Audit Log.
  *    → Owner only.
@@ -75,7 +82,7 @@ export const ROLES = ["OWNER", "MANAGER", "SALES", "VIEWER"] as const satisfies 
  */
 const OWNER_ONLY: readonly Permission[] = [
   "product.price.change",
-  "product.cost.set",
+  "product.cost.change",
   "category.manage",
   "user.manage",
   "settings.manage",
@@ -87,8 +94,10 @@ const MANAGER: readonly Permission[] = [
   "product.archive",
   "product.price.setInitial",
   "product.cost.view",
+  "product.cost.setInitial",
   "stock.view",
   "stock.in",
+  "stock.in.updateCost",
   "stock.adjust",
   "sale.create",
   "sale.discount",
