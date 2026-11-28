@@ -5,16 +5,21 @@ import { PrismaClient } from "@prisma/client";
 import { hashPassword } from "@/lib/password";
 
 import { getTestDatabaseUrl } from "../integration/test-env";
+import { resetTestDatabase } from "../support/reset-test-db";
 
 import { e2eUsers, E2E_PASSWORD, PROJECTS, ROLE_USER_NAMES } from "./fixtures";
 
-/** Migrates the test database and (re)creates the e2e users with known state. */
+/**
+ * Migrates and empties the test database (so runs never pile up data), then
+ * creates the e2e users with known state.
+ */
 export default async function globalSetup(): Promise<void> {
   const url = getTestDatabaseUrl();
   execSync("pnpm exec prisma migrate deploy", {
     stdio: ["ignore", "ignore", "inherit"],
     env: { ...process.env, DATABASE_URL: url, DIRECT_URL: url },
   });
+  await resetTestDatabase(url);
 
   const prisma = new PrismaClient({ datasourceUrl: url });
   try {
@@ -50,8 +55,6 @@ export default async function globalSetup(): Promise<void> {
       };
       await prisma.user.upsert({ where: { email }, create: data, update: data });
     }
-    // Fresh rate-limit state for every run (test database only).
-    await prisma.loginAttempt.deleteMany({ where: { email: { endsWith: "@test.local" } } });
   } finally {
     await prisma.$disconnect();
   }
