@@ -73,6 +73,7 @@ The system will be used by roughly 4–10 people, each with their own login. Acc
 | View revenue reports | ✅ | ✅ | ❌ | ✅ |
 | View profit / cost reports | ✅ | ✅ | ❌ | ✅ |
 | Export reports (CSV / PDF) | ✅ | ✅ | ❌ | ✅ |
+| View Staff Activity report | ✅ | ✅ | ❌ | ❌ |
 | Manage users & roles | ✅ | ❌ | ❌ | ❌ |
 | Business settings (currency, name, low-stock threshold) | ✅ | ❌ | ❌ | ❌ |
 | View audit log | ✅ | ✅ | ❌ | ❌ |
@@ -88,6 +89,7 @@ The system will be used by roughly 4–10 people, each with their own login. Acc
 - *Categories:* Owner only (`category.manage`) — UI spec §3.1 places Categories under Admin, where the Manager sees only the Audit Log.
 - *Requests list:* Owner, Manager and Viewer can view it (`request.view`); Sales Staff log requests but don't browse the list. Changing request status (`request.manage`) is Owner/Manager.
 - *Sales history:* Sales Staff get `sale.viewOwnToday` only.
+- *Staff Activity report* (owner decision, F8 "Owner/Manager"): needs `report.staff` (Owner, Manager); the route `/reports/staff-activity` is guarded by it. Viewers see every other report.
 - Users who still have to change their password are refused every action until they do.
 
 ## 5. Scope

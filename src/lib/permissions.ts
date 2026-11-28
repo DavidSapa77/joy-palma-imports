@@ -47,6 +47,7 @@ export const PERMISSIONS = [
   "report.revenue", //          Revenue reports
   "report.profit", //           Profit / cost reports
   "report.export", //           Export reports (CSV / PDF)
+  "report.staff", //            Staff Activity report (sales per staff member) — Owner/Manager
   // Admin
   "user.manage", //             Users & roles
   "settings.manage", //         Business settings
@@ -118,6 +119,7 @@ const MANAGER: readonly Permission[] = [
   "report.revenue",
   "report.profit",
   "report.export",
+  "report.staff",
   "audit.view",
 ];
 

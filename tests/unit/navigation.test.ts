@@ -33,6 +33,7 @@ const PAGE_ACCESS: Record<string, [boolean, boolean, boolean, boolean]> = {
   "/requests":                        [Y,     Y,      Y,     Y],
   "/reports":                         [Y,     Y,      N,     Y],
   "/reports/best-sellers":            [Y,     Y,      N,     Y],
+  "/reports/staff-activity":          [Y,     Y,      N,     N],
   "/admin":                           [Y,     Y,      N,     N],
   "/admin/users":                     [Y,     N,      N,     N],
   "/admin/categories":                [Y,     N,      N,     N],

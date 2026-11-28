@@ -31,6 +31,7 @@ export const ROUTE_RULES: readonly RouteRule[] = [
   { prefix: "/products", anyOf: ["product.view"] },
   { prefix: "/stock", anyOf: ["stock.view"] },
   { prefix: "/requests", anyOf: ["request.create", "request.view"] },
+  { prefix: "/reports/staff-activity", anyOf: ["report.staff"] },
   { prefix: "/reports", anyOf: ["report.revenue"] },
   { prefix: "/admin/users", anyOf: ["user.manage"] },
   { prefix: "/admin/categories", anyOf: ["category.manage"] },

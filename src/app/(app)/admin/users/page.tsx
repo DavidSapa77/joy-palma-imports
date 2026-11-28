@@ -1,17 +1,14 @@
 import type { Metadata } from "next";
 
-import { PagePlaceholder } from "@/components/layout/page-placeholder";
+import { UsersManager } from "@/components/users/users-manager";
 import { guardRoute } from "@/lib/route-guard.server";
+import { getTimeZone } from "@/server/queries/settings";
+import { listUsers } from "@/server/queries/users";
 
 export const metadata: Metadata = { title: "Users · Joy Palma Imports" };
 
 export default async function UsersPage() {
-  await guardRoute("/admin/users");
-  return (
-    <PagePlaceholder
-      heading="Users"
-      description="Add staff, assign roles, reset passwords and deactivate accounts."
-      plannedFor="Phase 3"
-    />
-  );
+  const session = await guardRoute("/admin/users");
+  const users = await listUsers(await getTimeZone());
+  return <UsersManager users={users} currentUserId={session.user.id} />;
 }

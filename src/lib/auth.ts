@@ -5,9 +5,7 @@ import { authConfig } from "@/lib/auth.config";
 import { prisma } from "@/lib/db";
 import { loginSchema } from "@/lib/validators/auth";
 import { authenticate } from "@/server/auth/authenticate";
-
-/** How often a signed-in session re-reads the user (role, active, mustChangePassword). */
-const USER_RECHECK_MS = 60_000;
+import { refreshSessionToken } from "@/server/auth/refresh-token";
 
 /** Error codes surfaced to the login form (`AuthError.code`). */
 export class RateLimitedError extends CredentialsSignin {
@@ -53,22 +51,7 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
     async jwt(params) {
       const token = await authConfig.callbacks.jwt(params);
       if (params.user) return token;
-
-      const due = Date.now() - (token.checkedAt ?? 0) > USER_RECHECK_MS;
-      if (params.trigger !== "update" && !due) return token;
-
-      const user = await prisma.user.findUnique({
-        where: { id: token.id },
-        select: { name: true, email: true, role: true, isActive: true, mustChangePassword: true },
-      });
-      if (!user || !user.isActive) return null; // ends the session
-
-      token.name = user.name;
-      token.email = user.email;
-      token.role = user.role;
-      token.mustChangePassword = user.mustChangePassword;
-      token.checkedAt = Date.now();
-      return token;
+      return refreshSessionToken(prisma, token, { force: params.trigger === "update" });
     },
   },
 });

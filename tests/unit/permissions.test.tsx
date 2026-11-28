@@ -55,6 +55,7 @@ const MATRIX: Record<Permission, [boolean, boolean, boolean, boolean]> = {
   "report.revenue":                  [Y,     Y,      N,     Y],
   "report.profit":                   [Y,     Y,      N,     Y],
   "report.export":                   [Y,     Y,      N,     Y],
+  "report.staff":                    [Y,     Y,      N,     N],
   "user.manage":                     [Y,     N,      N,     N],
   "settings.manage":                 [Y,     N,      N,     N],
   "audit.view":                      [Y,     Y,      N,     N],

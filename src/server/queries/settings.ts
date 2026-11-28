@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { DEFAULT_TIME_ZONE } from "@/lib/dates";
 
 const FALLBACK_BUSINESS_NAME = "Joy Palma Imports";
 
@@ -30,5 +31,18 @@ export async function getBusinessBrand(): Promise<BusinessBrand> {
     };
   } catch {
     return { name: FALLBACK_BUSINESS_NAME, logoUrl: null };
+  }
+}
+
+/** Business time zone for displaying dates (Settings, default Africa/Accra). */
+export async function getTimeZone(): Promise<string> {
+  try {
+    const setting = await prisma.setting.findUnique({
+      where: { id: 1 },
+      select: { timeZone: true },
+    });
+    return setting?.timeZone || DEFAULT_TIME_ZONE;
+  } catch {
+    return DEFAULT_TIME_ZONE;
   }
 }
